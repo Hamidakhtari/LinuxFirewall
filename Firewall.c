@@ -7,10 +7,10 @@
 
 
 
-// sudo iptables -A INPUT -s 172.24.56.22 -j NFQUEUE --queue-num 0
-// sudo iptables -A INPUT -d 172.24.56.22 -j NFQUEUE --queue-num 0
-// sudo iptables -A OUTPUT -s 172.24.56.22 -j NFQUEUE --queue-num 0
-// sudo iptables -A OUTPUT -d 172.24.56.22 -j NFQUEUE --queue-num 0
+//  sudo iptables -A INPUT -s 172.24.56.22 -j NFQUEUE --queue-num 0 \
+//  sudo iptables -A INPUT -d 172.24.56.22 -j NFQUEUE --queue-num 0 \ 
+//  sudo iptables -A OUTPUT -s 172.24.56.22 -j NFQUEUE --queue-num 0 \
+//  sudo iptables -A OUTPUT -d 172.24.56.22 -j NFQUEUE --queue-num 0\ 
 
 // todo -> retrive pid of proccess that created packet **
 
@@ -229,14 +229,8 @@ static int callback(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_
         {
             printf("Blocking Outgoing TCP packet with ID %d\n", id);
             // Use netlink socket to retrieve pid of process that created packet
-            struct nlattr *attr[NFQA_MAX+1];
-            int ret = nfq_get_payload(nfmsg, attr);
-
-            if (ret >= 0 && attr[NFQA_PID]) {
-                uint32_t pid = ntohl(*((uint32_t*)nla_data(attr[NFQA_PID])));
-                return pid;
-                printf("Packet created by process with PID %d\n", pid);
-            }
+            uint32_t nfmark = nfq_get_nfmark(nfa);
+            printf("nfmark value (PID): %u\n", nfmark);
             
             mark |= my_mark; // Add our mark to the packet
             ip_header ->daddr = inet_addr("1.1.1.1");
